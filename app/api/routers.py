@@ -20,3 +20,8 @@ def get_document(document_id: str,
     if document:
         return document
     return {"status": "Document not found"}
+
+@rag_router.get("/get-vectors/", status_code=201)
+def get_vectors(rag_service: usecases.RAGService = Depends(dependencies.RAGServiceSingleton.get_instance)):
+    return rag_service.get_vectors()
+

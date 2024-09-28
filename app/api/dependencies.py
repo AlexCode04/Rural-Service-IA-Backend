@@ -11,8 +11,9 @@ class RAGServiceSingleton:
     @classmethod
     def get_instance(cls) -> usecases.RAGService:
         if cls._instance is None:
-
+            configs = configurations.Configs()
             database_adapter = MongoDbAdapter(url="mongodb://127.0.0.1:27017")
-            cls._instance = usecases.RAGService(db=database_adapter)
+            document_repo = ChromaDBAdapter(number_of_vectorial_results=configs.number_of_vectorial_results)
+            cls._instance = usecases.RAGService(document_repo=document_repo, db=database_adapter)
 
         return cls._instance
