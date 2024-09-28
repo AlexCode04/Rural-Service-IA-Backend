@@ -15,9 +15,14 @@ class DocumentRepositoryPort(ABC):
     def get_vectors(self):
         pass
 
+class LlmPort(ABC):
+    @abstractmethod
+    def generate_text(self, prompt: str, retrieval_context: str) -> str:
+        pass
 
 class DatabasePort(ABC):
     @abstractmethod
+
     def save_user(self, username: str, password: str) -> None:
         pass
 

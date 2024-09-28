@@ -7,9 +7,11 @@ from app.helpers.strategies_poc import FileReader
 
 
 class RAGService:
-    def __init__(self, document_repo: ports.DocumentRepositoryPort, db: ports.DatabasePort) -> None:
+    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort, db: ports.DatabasePort) -> None:
         self.db = db
         self.document_repo = document_repo
+        self.openai_adapter = openai_adapter
+
     def save_document(self, file: UploadFile) -> None:
         # Obtener el nombre del archivo
         file_name = file.filename
@@ -38,6 +40,18 @@ class RAGService:
 
     def get_vectors(self):
         return self.document_repo.get_vectors()
+
+    def generate_answer(self, query: str) -> str:
+        documents = self.document_repo.get_documents(query, self.openai_adapter)
+        print(f"Documents: {documents}")
+        context = " ".join([doc.content for doc in documents])
+        return self.openai_adapter.generate_text(prompt=query, retrieval_context=context)
+
+    def sing_up(self, username: str, password: str) -> None:
+        self.db.save_user(username, password)
+
+    def get_user(self, username: str, password: str) -> User:
+        return self.db.get_user(username, password)
 
 
 
