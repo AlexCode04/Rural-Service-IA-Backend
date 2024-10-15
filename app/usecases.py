@@ -7,12 +7,12 @@ from app.helpers.strategies_poc import FileReader
 
 
 class RAGService:
-    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort, db: ports.DatabasePort) -> None:
+    def __init__(self,  db: ports.DatabasePort, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort) -> None:
         self.db = db
         self.document_repo = document_repo
         self.openai_adapter = openai_adapter
 
-    def save_document(self, file: UploadFile) -> None:
+    def save_document(self, file: UploadFile, user_id: str) -> None:
         # Obtener el nombre del archivo
         file_name = file.filename
 
@@ -25,10 +25,9 @@ class RAGService:
             f.write(file.file.read())
 
         #Crear modelo ducumento con valores iniciales
-        document = Document(nombre=file_name, ruta=file_path)
+        document = Document(nombre=file_name, ruta=file_path, user_id=user_id)
         #Obtengo el contenido del documento
         content = FileReader(document.ruta).read_file()
-        print(content)
 
         #Guardar información del documento en MongoDB
         self.db.save_document(document)
@@ -47,12 +46,15 @@ class RAGService:
         context = " ".join([doc.content for doc in documents])
         return self.openai_adapter.generate_text(prompt=query, retrieval_context=context)
 
-    def sing_up(self, username: str, password: str) -> None:
-        self.db.save_user(username, password)
+    def sing_up(self, username: str, password: str, rol: str) -> None:
+        user = User(username=username, password=password, rol=rol)
+        self.db.save_user(user)
 
     def get_user(self, username: str, password: str) -> User:
         return self.db.get_user(username, password)
 
+    def get_documents_by_user_id(self, user_id: str) -> list[Document]:
+        return self.db.get_documents_by_user_id(user_id)
 
 
 

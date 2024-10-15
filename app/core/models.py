@@ -13,8 +13,11 @@ class Document(pydantic.BaseModel):
     # user_id: str
     ruta: Optional[str] = None
     content: Optional[str] = None
+    user_id: str
 
 class User(pydantic.BaseModel):
-    id: Optional[str] = None
+    user_id: str = pydantic.Field(default_factory=generate_uuid)
     username: str
     password: str
+    documents: Optional[list[Document]] = None
+    rol: str

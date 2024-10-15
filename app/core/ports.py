@@ -23,7 +23,7 @@ class LlmPort(ABC):
 class DatabasePort(ABC):
     @abstractmethod
 
-    def save_user(self, username: str, password: str) -> None:
+    def save_user(self, user: models.User) -> None:
         pass
 
     @abstractmethod
@@ -37,5 +37,10 @@ class DatabasePort(ABC):
     @abstractmethod
     def get_document(self, document_id: str) -> models.Document | None:
         pass
+
+    @abstractmethod
+    def get_documents_by_user_id(self, user_id: str) -> List[models.Document]:
+        pass
+
 
 
