@@ -1,23 +1,23 @@
 import abc
 from abc import abstractmethod
-from typing import Type
+from typing import Type, Optional
 import re
 import PyPDF2
 import docx
-from typing import Optional
+
 
 class FileManager(abc.ABC):
     @abstractmethod
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.path = path
 
     @abstractmethod
-    def read(self):
+    def read(self) -> Optional[str]:
         pass
 
 
 class PDFFileManager(FileManager):
-    def __init__(self, path):
+    def __init__(self, path: str):
         super().__init__(path)
 
     def read(self) -> Optional[str]:
@@ -38,16 +38,16 @@ class PDFFileManager(FileManager):
 
     def clean_text(self, text: str) -> str:
         # Reemplaza los saltos de línea dentro de frases por un espacio.
-        text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)  # Reemplaza saltos de línea simples por un espacio.
+        text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
         # Reemplaza múltiples saltos de línea consecutivos por uno solo.
         text = re.sub(r'\n+', '\n', text)
         # Opcionalmente, puedes eliminar espacios innecesarios adicionales.
-        text = re.sub(r'[ \t]+', ' ', text)  # Quita múltiples espacios y tabulaciones.
+        text = re.sub(r'[ \t]+', ' ', text)
         return text
 
 
 class WordFileManager(FileManager):
-    def __init__(self, path):
+    def __init__(self, path: str):
         super().__init__(path)
 
     def read(self) -> Optional[str]:
@@ -62,10 +62,10 @@ class WordFileManager(FileManager):
 
 
 class TextFileManager(FileManager):
-    def __init__(self, path):
+    def __init__(self, path: str):
         super().__init__(path)
 
-    def read(self):
+    def read(self) -> Optional[str]:
         try:
             with open(self.path, 'r', encoding='utf-8') as file:
                 return file.read()
@@ -78,8 +78,9 @@ class TextFileManager(FileManager):
 strategies: dict[str, Type[FileManager]] = {
     "pdf": PDFFileManager,
     "docx": WordFileManager,
-    "txt": TextFileManager
+    "txt": TextFileManager,
 }
+
 
 class FileReader:
     def __init__(self, path: str):
@@ -88,7 +89,5 @@ class FileReader:
             raise ValueError(f"Unsupported file type: {extension}")
         self.manager = strategies[extension](path)
 
-    def read_file(self):
+    def read_file(self) -> Optional[str]:
         return self.manager.read()
-
-
