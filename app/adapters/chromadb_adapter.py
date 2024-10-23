@@ -61,6 +61,7 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
                 )
         return documents
 
+
     # Obtener vectores almacenados
     def get_vectors(self):
         key_word = 'embeddings'
