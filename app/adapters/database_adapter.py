@@ -1,3 +1,4 @@
+from typing import Optional
 from app.core import ports, models
 from pymongo import MongoClient
 
@@ -12,21 +13,19 @@ class MongoDbAdapter(ports.DatabasePort):
         self.documents = self.db["documents"]
 
     def save_user(self, user: models.User) -> None:
-        self.users.insert_one({
-            "user_id": user.user_id,
-            "username": user.username,
-            "password": user.password,
-            "rol": user.rol
-        })
+        self.users.insert_one(
+            {
+                "user_id": user.user_id,
+                "username": user.username,
+                "password": user.password,
+                "rol": user.rol,
+            }
+        )
 
-    def get_user(
-        self, username: str, _pass: str
-    ) -> models.User:
+    def get_user(self, username: str, _pass: str) -> Optional[models.User]:
         user = self.users.find_one({"username": username, "password": _pass})
         if user:
             return models.User(
-                username=user["username"],
-                password=user["password"],
-                rol=user["rol"]
+                username=user["username"], password=user["password"], rol=user["rol"]
             )
-        return models.User(username="", password="", rol="")
+        return None

@@ -1,10 +1,9 @@
 import chromadb
 import numpy as np
-from typing import List
-from app.core import ports
-from app.core import models
-from app.helpers.vectorize_documents import document_to_vectors
-from app.helpers.vectorize_documents import get_openai_embeddings
+from typing import List, Optional, Dict, Any
+from app.core import ports, models
+from app.core.ports import LlmPort
+from app.helpers.vectorize_documents import document_to_vectors, get_openai_embeddings
 
 
 class ChromaDBAdapter(ports.DocumentRepositoryPort):
@@ -15,10 +14,11 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
 
     # Guardar un documento con embeddings generados por OpenAI
     def save_document(
-        self, document: models.Document, content: str, openai_client
+        self, document: models.Document, content: str, openai_client: LlmPort
     ) -> None:
         embeddings_document = document_to_vectors(content, openai_client)
 
+        print(f"Embeddings del documento {document.document_id}: {embeddings_document}")
         # Si hay más de un embedding, combinarlo promediando
         if len(embeddings_document) > 1:
             combined_embedding = np.mean(embeddings_document, axis=0).tolist()
@@ -34,11 +34,8 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
 
     # Obtener documentos usando embeddings generados para la query
     def get_documents(
-        self, query: str,
-            openai_client,
-            n_results: int | None = None
-            ) -> List[models.Document]:
-
+        self, query: str, openai_client: LlmPort, n_results: Optional[int] = None
+    ) -> List[models.Document]:
         if not n_results:
             n_results = self._number_of_vectorial_results
 
@@ -53,18 +50,25 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
 
         # Procesar los resultados y devolver documentos
         documents = []
-        var = 'documents'
-        for i, doc_id_list in enumerate(results['ids']):
+        var = "documents"
+        for i, doc_id_list in enumerate(results["ids"]):
             for doc_id in doc_id_list:
-                documents.append(
-                    models.Document(id=doc_id, content=results[var][i][0])
-                )
+                documents.append(models.Document(id=doc_id, content=results[var][i][0]))
+
         return documents
 
-
     # Obtener vectores almacenados
-    def get_vectors(self):
-        key_word = 'embeddings'
-        var = 'documents'
-        data = 'metadatas'
-        return self.collection.get(include=[key_word, var, data])
+    def get_vectors(self) -> Dict[str, Any]:
+        key_word = "embeddings"
+        var = "documents"
+        data = "metadatas"
+
+        # Obtener los datos de ChromaDB y convertirlos en un diccionario
+        results = self.collection.get(include=[key_word, var, data])
+
+        # Convertir a un formato serializable
+        return {
+            "embeddings": results.get(key_word, []),
+            "documents": results.get(var, []),
+            "metadatas": results.get(data, []),
+        }

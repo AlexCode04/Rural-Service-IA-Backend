@@ -6,49 +6,66 @@ from app.helpers.strategies_poc import FileReader
 
 
 class RAGService:
-    def __init__(self, db: ports.DatabasePort,
-                 document_repo: ports.DocumentRepositoryPort,
-                 openai_adapter: ports.LlmPort) -> None:
+    def __init__(
+        self,
+        db: ports.DatabasePort,
+        document_repo: ports.DocumentRepositoryPort,
+        openai_adapter: ports.LlmPort,
+    ) -> None:
         self.db = db
         self.document_repo = document_repo
         self.openai_adapter = openai_adapter
 
     def save_document(self, file: UploadFile) -> None:
-        # Obtener el nombre del archivo
         file_name = file.filename
+        os.makedirs("media", exist_ok=True)
 
-        # Crear la carpeta 'media' si no existe
-        os.makedirs('media', exist_ok=True)
+        # Guardar el archivo en la carpeta 'media' con manejo de errores
+        file_path = os.path.join("media", file_name)
+        try:
+            with open(file_path, "wb") as f:
+                f.write(file.file.read())
+        except Exception as e:
+            print(f"Error al guardar el archivo: {e}")
+            raise
 
-        # Guardar el archivo en la carpeta 'media'
-        file_path = os.path.join('media', file_name)
-        with open(file_path, 'wb') as f:
-            f.write(file.file.read())
-
-        # Crear modelo documento con valores iniciales
+        # Crear modelo documento y leer contenido
         document = Document(nombre=file_name, ruta=file_path)
-        # Obtengo el contenido del documento
-        content = FileReader(document.ruta).read_file()
-        print(f'Texto del documento: {content}')
-        # Realiza embedding, chunks y guarda en ChromaDB
-        self.document_repo.save_document(document,
-                                         content, self.openai_adapter)
+        content = FileReader(document.ruta).read_file() if document.ruta else ""
+        content = content if content is not None else ""  # Manejo si no hay contenido
 
-    def get_vectors(self):
-        return self.document_repo.get_vectors()
+        print(f"Texto del documento: {content}")
+        # Guardar el documento en la base de datos
+        self.document_repo.save_document(document, content, self.openai_adapter)
 
-    def generate_answer(self, query: str
-                        ) -> str:
-        documents = self.document_repo.get_documents(query,
-                                                     self.openai_adapter,
-                                                     0)
-        context = " ".join([doc.content for doc in documents])
-        return self.openai_adapter.generate_text(prompt=query,
-                                                 retrieval_context=context)
+    def get_vectors(self) -> dict:
+        vectors = self.document_repo.get_vectors()
+        return {
+            "embeddings": vectors.get("embeddings", []),
+            "documents": vectors.get("documents", []),
+            "metadatas": vectors.get("metadatas", []),
+        }
+
+    def generate_answer(self, query: str) -> str:
+        documents = self.document_repo.get_documents(query, self.openai_adapter)
+        if not documents:
+            print("No documents found for the query.")
+            return "No se encontraron documentos relevantes para la consulta."
+
+        context = " ".join(
+            [doc.content for doc in documents if doc.content is not None]
+        )
+        return self.openai_adapter.generate_text(
+            prompt=query, retrieval_context=context
+        )
 
     def sing_up(self, username: str, password: str, rol: str) -> None:
         user = User(username=username, password=password, rol=rol)
+        print(f"Generated user_id: {user.user_id}")
         self.db.save_user(user)
 
     def get_user(self, username: str, password: str) -> User:
-        return self.db.get_user(username, password)
+        user = self.db.get_user(username, password)
+        if user is None:
+            raise ValueError("User not found")
+        return user  # Retorna el modelo User directamente
