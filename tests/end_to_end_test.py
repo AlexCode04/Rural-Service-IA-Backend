@@ -6,7 +6,7 @@ client = TestClient(app)
 
 def test_end_to_end_real_adapters() -> None:
     # Step 1: Simulate file upload
-    file_content = b"Sample content for the real test"
+    file_content = b"Sample content for the real tests"
     response = client.post(
         "/save-document/",
         files={"file": ("real_test_document.txt", file_content, "text/plain")},

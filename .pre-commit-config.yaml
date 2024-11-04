@@ -21,7 +21,7 @@ repos:
           - "--skip"
           - "B311"
           - "-x"
-          - "test/**"
+          - "tests/**"
           - "--skip"
           - "B104"
           - "--skip"

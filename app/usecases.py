@@ -61,7 +61,6 @@ class RAGService:
 
     def sing_up(self, username: str, password: str, rol: str) -> None:
         user = User(username=username, password=password, rol=rol)
-        print(f"Generated user_id: {user.user_id}")
         self.db.save_user(user)
 
     def get_user(self, username: str, password: str) -> User:

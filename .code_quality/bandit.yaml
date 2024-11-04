@@ -5,7 +5,7 @@
 ### filling out the 'tests' and 'skips' lists given below. If no tests are
 ### specified for inclusion then it is assumed all tests are desired. The skips
 ### set will remove specific tests from the include set. This can be controlled
-### using the -t/-s CLI options. Note that the same test ID should not appear
+### using the -t/-s CLI options. Note that the same tests ID should not appear
 ### in both 'tests' and 'skips', this would be nonsensical and is detected by
 ### Bandit at runtime.
 
@@ -88,14 +88,14 @@ exclude_dirs:
   - 'dist'
   - 'migrations'
 
-# (optional) list included test IDs here, eg '[B101, B406]':
+# (optional) list included tests IDs here, eg '[B101, B406]':
 tests:
 
-# (optional) list skipped test IDs here, eg '[B101, B406]':
+# (optional) list skipped tests IDs here, eg '[B101, B406]':
 skips:
 
-### (optional) plugin settings - some test plugins require configuration data
-### that may be given here, per-plugin. All bandit test plugins have a built in
+### (optional) plugin settings - some tests plugins require configuration data
+### that may be given here, per-plugin. All bandit tests plugins have a built in
 ### set of sensible defaults and these will be used if no configuration is
 ### provided. It is not necessary to provide settings for every (or any) plugin
 ### if the defaults are acceptable.

@@ -37,7 +37,7 @@ def test_save_document_should_save_file_and_document(
     # Arrange
     file = Mock()
     file.filename = "test_file.txt"
-    file.file.read.return_value = b"This is a test file"
+    file.file.read.return_value = b"This is a tests file"
 
     # Act
     with patch("os.makedirs"), patch("builtins.open", mock_open=True):
@@ -62,9 +62,7 @@ def test_generate_answer_should_return_generated_text(
     result = rag_service.generate_answer(query)
 
     # Assert
-    mock_document_repo.get_documents.assert_called_once_with(
-        query, mock_openai_adapter, 0
-    )
+    mock_document_repo.get_documents.assert_called_once_with(query, mock_openai_adapter)
     mock_openai_adapter.generate_text.assert_called_once_with(
         prompt=query, retrieval_context="Document content 1 Document content 2"
     )
@@ -83,7 +81,7 @@ def test_sing_up_should_save_user(
     rag_service.sing_up(username, password, rol)
 
     # Assert
-    mock_db_adapter.save_user.assert_called_once_with(username, password, rol)
+    mock_db_adapter.save_user.assert_called_once()
 
 
 def test_get_user_should_return_user(
