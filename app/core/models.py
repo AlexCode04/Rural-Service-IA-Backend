@@ -17,7 +17,7 @@ class Document(pydantic.BaseModel):
 
 class User(pydantic.BaseModel):
     user_id: str = pydantic.Field(default_factory=generate_uuid)
-    username: str
+    email: str
     password: str
     documents: Optional[list[Document]] = None
-    rol: str
+    rol: str = "user"

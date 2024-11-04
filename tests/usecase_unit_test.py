@@ -75,12 +75,11 @@ def test_sing_up_should_save_user(
     rag_service: RAGService, mock_db_adapter: Mock
 ) -> None:
     # Arrange
-    username = "testuser"
+    email = "testuser"
     password = "password"
-    rol = "admin"
 
     # Act
-    rag_service.sing_up(username, password, rol)
+    rag_service.sing_up(email, password)
 
     # Assert
     mock_db_adapter.save_user.assert_called_once()
@@ -90,17 +89,17 @@ def test_get_user_should_return_user(
     rag_service: RAGService, mock_db_adapter: Mock
 ) -> None:
     # Arrange
-    username = "testuser"
+    email = "testuser"
     password = "password"
     mock_db_adapter.get_user.return_value = User(
-        username=username, password=password, rol="admin"
+        email=email, password=password, rol="admin"
     )
 
     # Act
-    result = rag_service.get_user(username, password)
+    result = rag_service.get_user(email, password)
 
     # Assert
-    mock_db_adapter.get_user.assert_called_once_with(username, password)
-    assert result.username == username
+    mock_db_adapter.get_user.assert_called_once_with(email, password)
+    assert result.username == email
     assert result.password == password
     assert result.rol == "admin"

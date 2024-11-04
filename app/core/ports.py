@@ -36,9 +36,21 @@ class LlmPort(ABC):
 
 class DatabasePort(ABC):
     @abstractmethod
-    def save_user(self, user: models.User) -> None:
+    def save_user(self, user: models.User) -> dict:
         pass
 
     @abstractmethod
     def get_user(self, username: str, password: str) -> Optional[models.User]:
+        pass
+
+    @abstractmethod
+    def get_user_by_email(self, email: str) -> Optional[models.User]:
+        pass
+
+    @abstractmethod
+    def update_user_with_new_role(self, user: models.User) -> dict:
+        pass
+
+    @abstractmethod
+    def get_all_users(self) -> List[models.User]:
         pass

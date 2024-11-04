@@ -59,12 +59,25 @@ class RAGService:
             prompt=query, retrieval_context=context
         )
 
-    def sing_up(self, username: str, password: str, rol: str) -> None:
-        user = User(username=username, password=password, rol=rol)
-        self.db.save_user(user)
+    def sing_up(self, email: str, password: str) -> dict:
+        user = User(email=email, password=password)
+        return self.db.save_user(user)
 
-    def get_user(self, username: str, password: str) -> User:
-        user = self.db.get_user(username, password)
+    def get_user(self, email: str, password: str) -> User:
+        user = self.db.get_user(email, password)
         if user is None:
             raise ValueError("User not found")
         return user  # Retorna el modelo User directamente
+
+    def change_role(self, email: str, new_role: str) -> dict:
+        user = self.db.get_user_by_email(email)
+        if user is None:
+            return {"status": "User not found"}
+        user.rol = new_role
+        respone = self.db.update_user_with_new_role(user)
+        if respone.get("status") == "User updated successfully":
+            return {"status": "Role changed successfully"}
+        return {"status": "Error changing role"}
+
+    def get_all_users(self) -> list[User]:
+        return self.db.get_all_users()
