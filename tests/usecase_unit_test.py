@@ -100,6 +100,6 @@ def test_get_user_should_return_user(
 
     # Assert
     mock_db_adapter.get_user.assert_called_once_with(email, password)
-    assert result.username == email
+    assert result.email == email
     assert result.password == password
     assert result.rol == "admin"
