@@ -4,6 +4,8 @@ from app.usecases import RAGService
 from app.core import ports
 import pytest
 
+# This test is using the Mock class from the unittest.mock module to create mock objects for the database adapter, document repository, and OpenAI adapter.
+
 
 @pytest.fixture
 def mock_db_adapter() -> Mock:
