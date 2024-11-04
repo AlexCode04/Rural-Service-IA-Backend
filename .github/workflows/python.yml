@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,6 +21,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+
+    - name: Set environment variables
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> .env
+        echo "MODEL=gpt-3.5-turbo" >> .env
+        echo "MAX_TOKENS=2048" >> .env
+        echo "TEMPERATURE=0.7" >> .env
+        echo "NUMBER_OF_VECTORIAL_RESULTS=5" >> .env
 
     - name: Run tests
       run: |
