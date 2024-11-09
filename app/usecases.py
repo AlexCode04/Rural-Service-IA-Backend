@@ -67,7 +67,7 @@ class RAGService:
         user = self.db.get_user(email, password)
         if user is None:
             raise ValueError("User not found")
-        return user  # Retorna el modelo User directamente
+        return user
 
     def change_role(self, email: str, new_role: str) -> dict:
         user = self.db.get_user_by_email(email)

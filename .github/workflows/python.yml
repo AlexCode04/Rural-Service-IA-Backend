@@ -32,6 +32,9 @@ jobs:
         echo "TEMPERATURE=0.7" >> .env
         echo "NUMBER_OF_VECTORIAL_RESULTS=5" >> .env
 
+    - name: up docker-compose
+      run: docker-compose up -d
+
     - name: Run tests
       run: |
         poetry run pytest --cov=app --cov-report=xml

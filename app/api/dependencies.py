@@ -12,7 +12,9 @@ class RAGServiceSingleton:
     def get_instance(cls) -> usecases.RAGService:
         if cls._instance is None:
             configs = configurations.Configs()
-            database_adapter = MongoDbAdapter(url="mongodb://127.0.0.1:27017")
+            database_adapter = MongoDbAdapter(
+                url="mongodb://127.0.0.1:27017", db_name=configs.db_name
+            )
             openai_adapter = OpenAIAdapter(
                 api_key=configs.openai_api_key,
                 model=configs.model,

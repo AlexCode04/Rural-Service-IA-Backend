@@ -4,13 +4,12 @@ from pymongo import MongoClient
 
 
 class MongoDbAdapter(ports.DatabasePort):
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, db_name: str) -> None:
         self.client = MongoClient(url)
         # Nombre de la base de datos
-        self.db = self.client["rag_db"]
+        self.db = self.client[db_name]
         # Nombre de las colecciones
         self.users = self.db["users"]
-        self.documents = self.db["documents"]
 
     def save_user(self, user: models.User) -> dict:
         user_clone = self.users.find_one({"email": user.email})
