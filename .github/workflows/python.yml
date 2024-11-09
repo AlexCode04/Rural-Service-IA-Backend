@@ -49,7 +49,7 @@ jobs:
         echo "MAX_TOKENS=2048" >> .env
         echo "TEMPERATURE=0.7" >> .env
         echo "NUMBER_OF_VECTORIAL_RESULTS=5" >> .env
-        echo "BD_NAME" >> .env
+        echo "DB_NAME=rag_db" >> .env
 
     - name: Start Docker services
       run: docker-compose up -d
