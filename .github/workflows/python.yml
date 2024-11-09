@@ -53,11 +53,11 @@ jobs:
     - name: Start Docker services
       run: docker-compose up -d
 
-    - name: Wait for services to be ready
+    - name: Wait for MongoDB service to be ready
       run: |
-        # Espera a que el servicio esté disponible
-        until docker-compose exec -T <your_service_name> curl -f http://localhost:<port> >/dev/null 2>&1; do
-          echo "Waiting for service..."
+        # Espera a que el servicio MongoDB esté disponible
+        until docker-compose exec -T mongo curl -f http://localhost:27017 >/dev/null 2>&1; do
+          echo "Waiting for MongoDB service..."
           sleep 5
         done
 
