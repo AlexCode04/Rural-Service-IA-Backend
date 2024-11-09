@@ -103,3 +103,69 @@ def test_get_user_should_return_user(
     assert result.email == email
     assert result.password == password
     assert result.rol == "admin"
+
+
+def test_change_role_should_update_user_role(
+    rag_service: RAGService, mock_db_adapter: Mock
+) -> None:
+    # Arrange
+    email = "testuser"
+    new_role = "admin"
+
+    # Configuración del mock para devolver el usuario existente
+    mock_db_adapter.get_user_by_email.return_value = User(
+        email=email, password="password", rol="user"
+    )
+    mock_db_adapter.update_user_with_new_role.return_value = {
+        "status": "User updated successfully"
+    }
+
+    # Act
+    result = rag_service.change_role(email, new_role)
+
+    # Assert
+    mock_db_adapter.get_user_by_email.assert_called_once_with(email)
+    mock_db_adapter.update_user_with_new_role.assert_called_once()
+    assert result == {"status": "Role changed successfully"}
+
+
+def test_change_role_should_return_error_when_user_not_found(
+    rag_service: RAGService, mock_db_adapter: Mock
+) -> None:
+    # Arrange
+    email = "testuser"
+    new_role = "admin"
+
+    # Configuración del mock para devolver None cuando se busque el usuario
+    mock_db_adapter.get_user_by_email.return_value = None
+
+    # Act
+    result = rag_service.change_role(email, new_role)
+
+    # Assert
+    mock_db_adapter.get_user_by_email.assert_called_once_with(email)
+    mock_db_adapter.update_user_with_new_role.assert_not_called()
+    assert result == {"status": "User not found"}
+
+
+def test_get_all_users_should_return_all_users(
+    rag_service: RAGService, mock_db_adapter: Mock
+) -> None:
+    # Arrange
+    mock_db_adapter.get_all_users.return_value = [
+        User(email="user1", password="password1", rol="admin"),
+        User(email="user2", password="password2", rol="user"),
+    ]
+
+    # Act
+    result = rag_service.get_all_users()
+
+    # Assert
+    mock_db_adapter.get_all_users.assert_called_once()
+    assert len(result) == 2
+    assert result[0].email == "user1"
+    assert result[0].password == "password1"
+    assert result[0].rol == "admin"
+    assert result[1].email == "user2"
+    assert result[1].password == "password2"
+    assert result[1].rol == "user"
