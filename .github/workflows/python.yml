@@ -53,14 +53,6 @@ jobs:
     - name: Start Docker services
       run: docker-compose up -d
 
-    - name: Wait for MongoDB service to be ready
-      run: |
-        # Espera a que el servicio MongoDB esté disponible
-        until docker-compose exec -T mongo mongo --eval "print('MongoDB is ready')" >/dev/null 2>&1; do
-          echo "Waiting for MongoDB service..."
-          sleep 5
-        done
-
     - name: Run tests
       run: |
         poetry run pytest --cov=app --cov-report=xml
