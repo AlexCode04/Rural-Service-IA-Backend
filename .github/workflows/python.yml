@@ -32,8 +32,16 @@ jobs:
         echo "TEMPERATURE=0.7" >> .env
         echo "NUMBER_OF_VECTORIAL_RESULTS=5" >> .env
 
-    - name: up docker-compose
+    - name: Start Docker services
       run: docker-compose up -d
+
+    - name: Wait for services to be ready
+      run: |
+        # Wait for the main application to be ready
+        until docker-compose exec -T <your_service_name> curl -f http://localhost:<port> >/dev/null 2>&1; do
+          echo "Waiting for service..."
+          sleep 5
+        done
 
     - name: Run tests
       run: |
