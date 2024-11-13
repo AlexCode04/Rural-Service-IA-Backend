@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional  # Importamos Optional para parámetros opcionales
 from app.core import models
-from chromadb.api.types import GetResult
 
 
 class DocumentRepositoryPort(ABC):
@@ -15,12 +14,6 @@ class DocumentRepositoryPort(ABC):
     def get_documents(
         self, query: str, openai_client: "LlmPort", n_results: Optional[int] = None
     ) -> List[models.Document]:
-        pass
-
-    @abstractmethod
-    def get_vectors(
-        self,
-    ) -> GetResult:  # Anotación para lista de listas de floats
         pass
 
 

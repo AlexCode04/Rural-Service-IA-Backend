@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, mock_open
 from app.core.models import Document, User
 from app.usecases import RAGService
 from app.core import ports
@@ -49,6 +49,28 @@ def test_save_document_should_save_file_and_document(
     mock_document_repo.save_document.assert_called_once()
 
 
+def test_save_document_should_handle_file_write_exception(
+    rag_service: RAGService,
+) -> None:
+    # Arrange
+    file = Mock()
+    file.filename = "test_file.txt"
+    file.file.read.return_value = b"This is a test file"
+
+    # Act
+    with patch("os.makedirs"), patch("builtins.open", mock_open()) as mocked_open:
+        mocked_open.side_effect = IOError("Simulated file write error")
+
+        with patch("builtins.print") as mocked_print:
+            with pytest.raises(IOError, match="Simulated file write error"):
+                rag_service.save_document(file)
+
+            # Assert that the error message was printed
+            mocked_print.assert_called_once_with(
+                "Error al guardar el archivo: Simulated file write error"
+            )
+
+
 def test_generate_answer_should_return_generated_text(
     rag_service: RAGService, mock_document_repo: Mock, mock_openai_adapter: Mock
 ) -> None:
@@ -69,6 +91,29 @@ def test_generate_answer_should_return_generated_text(
         prompt=query, retrieval_context="Document content 1 Document content 2"
     )
     assert result == "Generated response"
+
+
+def test_generate_answer_should_return_no_documents_message_when_no_documents_found(
+    rag_service: RAGService, mock_document_repo: Mock
+) -> None:
+    # Arrange
+    query = "What is the document about?"
+    mock_document_repo.get_documents.return_value = (
+        []
+    )  # Simula que no se encuentran documentos
+
+    # Act
+    with patch(
+        "builtins.print"
+    ) as mocked_print:  # Parcha print para verificar el mensaje
+        result = rag_service.generate_answer(query)
+
+    # Assert
+    mock_document_repo.get_documents.assert_called_once_with(
+        query, rag_service.openai_adapter
+    )
+    mocked_print.assert_called_once_with("No documents found for the query.")
+    assert result == "No se encontraron documentos relevantes para la consulta."
 
 
 def test_sing_up_should_save_user(
@@ -146,6 +191,31 @@ def test_change_role_should_return_error_when_user_not_found(
     mock_db_adapter.get_user_by_email.assert_called_once_with(email)
     mock_db_adapter.update_user_with_new_role.assert_not_called()
     assert result == {"status": "User not found"}
+
+
+def test_change_role_should_return_error_when_update_fails(
+    rag_service: RAGService, mock_db_adapter: Mock
+) -> None:
+    # Arrange
+    email = "testuser"
+    new_role = "admin"
+
+    # Configuración del mock para devolver un usuario válido
+    mock_db_adapter.get_user_by_email.return_value = User(
+        email=email, password="password", rol="user"
+    )
+    # Configuración del mock para simular un fallo al actualizar el rol
+    mock_db_adapter.update_user_with_new_role.return_value = {
+        "status": "Failed to update user"
+    }
+
+    # Act
+    result = rag_service.change_role(email, new_role)
+
+    # Assert
+    mock_db_adapter.get_user_by_email.assert_called_once_with(email)
+    mock_db_adapter.update_user_with_new_role.assert_called_once()
+    assert result == {"status": "Error changing role"}
 
 
 def test_get_all_users_should_return_all_users(

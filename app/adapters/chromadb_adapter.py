@@ -1,6 +1,6 @@
 import chromadb
 import numpy as np
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from app.core import ports, models
 from app.core.ports import LlmPort
 from app.helpers.vectorize_documents import document_to_vectors, get_openai_embeddings
@@ -56,19 +56,3 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
                 documents.append(models.Document(id=doc_id, content=results[var][i][0]))
 
         return documents
-
-    # Obtener vectores almacenados
-    def get_vectors(self) -> Dict[str, Any]:
-        key_word = "embeddings"
-        var = "documents"
-        data = "metadatas"
-
-        # Obtener los datos de ChromaDB y convertirlos en un diccionario
-        results = self.collection.get(include=[key_word, var, data])
-
-        # Convertir a un formato serializable
-        return {
-            "embeddings": results.get(key_word, []),
-            "documents": results.get(var, []),
-            "metadatas": results.get(data, []),
-        }

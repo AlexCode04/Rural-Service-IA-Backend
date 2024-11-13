@@ -38,14 +38,6 @@ class RAGService:
         # Guardar el documento en la base de datos
         self.document_repo.save_document(document, content, self.openai_adapter)
 
-    def get_vectors(self) -> dict:
-        vectors = self.document_repo.get_vectors()
-        return {
-            "embeddings": vectors.get("embeddings", []),
-            "documents": vectors.get("documents", []),
-            "metadatas": vectors.get("metadatas", []),
-        }
-
     def generate_answer(self, query: str) -> str:
         documents = self.document_repo.get_documents(query, self.openai_adapter)
         if not documents:

@@ -18,15 +18,6 @@ def save_document(
     return {"status": "Document saved successfully"}
 
 
-@rag_router.get("/get-vectors/", status_code=200)
-def get_vectors(
-    rag_service: usecases.RAGService = depends(),
-) -> dict:  # Cambiado a dict para que FastAPI lo maneje sin problemas
-    vectors = rag_service.get_vectors()
-    # Convierte `vectors` a un formato JSON serializable, si es necesario
-    return {"vectors": vectors}
-
-
 @rag_router.get("/generate-answer/", status_code=201)
 def generate_answer(
     query: str,
