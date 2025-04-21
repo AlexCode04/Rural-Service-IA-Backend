@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile, File
 from app import usecases
 from app.api import dependencies
+from fastapi import Body
 
 rag_router = APIRouter()
 
@@ -22,30 +23,30 @@ def save_document(
 def generate_answer(
     query: str,
     rag_service: usecases.RAGService = depends(),
-) -> str:
-    return rag_service.generate_answer(query)
+) -> dict:
+    return {"type": "response", "answer": rag_service.generate_answer(query)}
 
 
 @rag_router.post("/register/", status_code=201)
 def sing_up(
-    email: str,
-    password: str,
+    email: str = Body(...),
+    password: str = Body(...),
     rag_service: usecases.RAGService = depends(),
 ) -> dict:
     response = rag_service.sing_up(email, password)
     return response
 
 
-@rag_router.get("/login/", status_code=201)
+@rag_router.post("/login/", status_code=201)
 def get_user(
-    email: str,
-    password: str,
+    email: str = Body(...),
+    password: str = Body(...),
     rag_service: usecases.RAGService = depends(),
 ) -> dict:
     user = rag_service.get_user(email, password)
     if user.email == "":
         return {"status": "User not found"}
-    return {"status": "User logged in successfully"}
+    return {"status": 200, "user": user}
 
 
 @rag_router.post("/change-role/", status_code=201)

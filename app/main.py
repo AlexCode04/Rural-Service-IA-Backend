@@ -15,9 +15,12 @@ app.add_middleware(
     allow_headers=["*"],  # Permite todos los encabezados
 )
 
+
 app.include_router(routers.rag_router)
 
 if __name__ == "__main__":
     import uvicorn
+
+    # Ejecuta el servidor en modo de desarrollo
 
     uvicorn.run(app, host="127.0.0.1", port=8001)

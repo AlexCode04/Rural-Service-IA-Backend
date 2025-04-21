@@ -34,19 +34,19 @@ class RAGService:
         content = FileReader(document.ruta).read_file() if document.ruta else ""
         content = content if content is not None else ""  # Manejo si no hay contenido
 
-        print(f"Texto del documento: {content}")
         # Guardar el documento en la base de datos
         self.document_repo.save_document(document, content, self.openai_adapter)
 
     def generate_answer(self, query: str) -> str:
         documents = self.document_repo.get_documents(query, self.openai_adapter)
-        if not documents:
+        if documents:
             print("No documents found for the query.")
-            return "No se encontraron documentos relevantes para la consulta."
+            context = " ".join(
+                [doc.content for doc in documents if doc.content is not None]
+            )
+        else:
+            context = "Vas a hacerte pasar por un experto en el tema de la salud basandote en la información que conoces me daras recomendaciones y un posible pronostico. Responde con buena ortografía, de forma clara y directa, sin repeticiones innecesarias."
 
-        context = " ".join(
-            [doc.content for doc in documents if doc.content is not None]
-        )
         return self.openai_adapter.generate_text(
             prompt=query, retrieval_context=context
         )

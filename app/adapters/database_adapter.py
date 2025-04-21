@@ -6,9 +6,7 @@ from pymongo import MongoClient
 class MongoDbAdapter(ports.DatabasePort):
     def __init__(self, url: str, db_name: str) -> None:
         self.client = MongoClient(url)
-        # Nombre de la base de datos
         self.db = self.client[db_name]
-        # Nombre de las colecciones
         self.users = self.db["users"]
 
     def save_user(self, user: models.User) -> dict:
